@@ -4,7 +4,7 @@
 export wd=`pwd`
 export project_data_folder="${wd}/data/raw/"
 export outdir="${wd}/data/processed"
-export simul_array_runs=10
+export simul_array_runs=24
 export species="Homo_sapiens"
 export genome_version="GRCh38"
 export annot="102"
