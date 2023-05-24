@@ -12,6 +12,10 @@ export paired_end="true"
 export projectname="NB_tumoroids"
 export merged_gtf_basename="NB_tumoroids"
 
+# Transcript filtering parameters
+export min_occurrence=3
+export min_tpm=1 
+
 # Set paths
 export resource_dir="/hpc/pmc_vanheesch/shared_resources/"
 export scriptdir="${wd}/scripts/"
