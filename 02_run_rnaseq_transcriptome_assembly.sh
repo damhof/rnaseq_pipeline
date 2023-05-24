@@ -79,7 +79,6 @@ mkdir -p log/${run}/{gffcompare,stringtie,salmon_quant}
 
 # Step 1: Transcript assembly with stringtie
 stringtie_jobid=()
-
 stringtie_jobid+=($(sbatch --parsable \
   --mem=24G \
   --cpus-per-task=4 \
@@ -90,13 +89,12 @@ stringtie_jobid+=($(sbatch --parsable \
   --export=ALL\
   ${scriptdir}/stringtie.sh
 ))
-
+info "stringtie jobid: ${stringtie_jobid[@]}"
 
 # Step 2: Compare sample GTF with reference GTF using gffcompare
 gffcompare_jobid=()
-
 gffcompare_jobid+=($(sbatch --parsable \
-  --mem=10G} \
+  --mem=10G \
   --cpus-per-task=2 \
   --time=24:00:00 \
   --array 1-${#samples[@]}%${simul_array_runs} \
@@ -106,35 +104,21 @@ gffcompare_jobid+=($(sbatch --parsable \
   --export=ALL \
   ${scriptdir}/gffcompare.sh
 ))
-
 info "Gffcompare jobid: ${gffcompare_jobid[@]}"
 
-echo -e "\n`date` Merging transcriptomes with Stringtie ..."
-echo -e "====================================================================================== \n"
-
-# 3. STRINGTIE merge: Merge all single-sample GTFs into a single GTF
-#    by keeping overlapping transcripts, using the reference GTF as 
-#    a guide.
-
+# Step 3: Merge all sample GTF files into single non-redundant GTF file using reference GTF file as guide
 stringtie_merge_jobid=()
-
 stringtie_merge_jobid+=($(sbatch --parsable \
-  --mem=${medium_mem} \
-  --cpus-per-task=${medium_cpu} \
+  --mem=24G \
+  --cpus-per-task=4 \
   --time=24:00:00 \
   --job-name=${run}.stringtie_merge \
   --output=log/${run}/%A_stringtie_merge.out \
   --dependency=afterany:${stringtie_jobid} \
-  ${scriptdir}/dip_stringtie_merge.sh \
-  ${CONFIG} \
-  ${scriptdir}/dip_functions.sh \
-  ${medium_cpu}
+  --export=ALL \
+  ${scriptdir}/stringtie_merge.sh
 ))
-
 info "Stringtie merge jobid: ${stringtie_merge_jobid[@]}"
-
-echo -e "\n`date` Annotating and filtering novel assembly GTF ..."
-echo -e "====================================================================================== \n"
 
 # 4. GFFCOMPARE + R: Annotate the transcripts in the merged GTF
 #                    with their associated gffcompare class codes

@@ -10,6 +10,7 @@ export genome_version="GRCh38"
 export annot="102"
 export paired_end="true"
 export projectname="NB_tumoroids"
+export merged_gtf_basename="NB_tumoroids"
 
 # Set paths
 export resource_dir="/hpc/pmc_vanheesch/shared_resources/"
