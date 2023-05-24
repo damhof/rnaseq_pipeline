@@ -120,29 +120,19 @@ stringtie_merge_jobid+=($(sbatch --parsable \
 ))
 info "Stringtie merge jobid: ${stringtie_merge_jobid[@]}"
 
-# 4. GFFCOMPARE + R: Annotate the transcripts in the merged GTF
-#                    with their associated gffcompare class codes
-#                    and filter the transcripts based on strand,
-#                    number of exons, and the transcript sample 
-#                    occurence.
-
+# Step 4: Annotate transcripts with gffcompare class codes and perform transcript filtering
 filter_annotate_jobid=()
-
 filter_annotate_jobid+=($(sbatch --parsable \
-  --mem=${medium_mem} \
-  --cpus-per-task=${low_cpu} \
+  --mem=24G \
+  --cpus-per-task=2 \
   --time=24:00:00 \
   --job-name=${run}.filter_annotate \
   --output=log/${run}/%A_filter_annotate.out \
   --dependency=afterany:${stringtie_merge_jobid} \
-  ${scriptdir}/dip_filter_annotate.sh \
-  ${CONFIG}
+  --export=ALL \
+  ${scriptdir}/filter_annotate.sh
 ))
-
 info "Filter and annotation jobid: ${filter_annotate_jobid[@]}"
-
-echo -e "\n`date` Create custom annotation for downstream RIBO-seq ..."
-echo -e "====================================================================================== \n"
 
 # 5. R: Creates a custom annotation file using the merged, filtered,
 #       annotated GTF for further RIBO-seq pipeline analysis
