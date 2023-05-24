@@ -1,4 +1,5 @@
-data/
-log/
+data/processed/*
+data/raw/*
+log/*
 slurm*
 *.txt
