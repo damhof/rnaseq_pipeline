@@ -171,18 +171,3 @@ samtools_jobid+=($(sbatch --parsable \
   "${scriptdir}/samtools.sh"
 ))
 info "Samtools jobid: ${samtools_jobid[@]}"
-
-
-# Step 5: Quantify gene-level CDS reads with featureCounts
-featurecounts_jobid=()
-featurecounts_jobid+=($(sbatch --parsable \
-  --mem=48G \
-  --cpus-per-task=8 \
-  --time=24:00:00 \
-  --job-name=${run}.featurecounts \
-  --output=log/${run}/%A_featurecounts.out \
-  --dependency=afterok:${samtools_jobid} \
-  --export=ALL \
-  "${scriptdir}/featurecounts.sh"
-))
-info "FeatureCounts jobid: ${featurecounts_jobid[@]}"
