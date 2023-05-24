@@ -78,7 +78,6 @@ mkdir -p log/${run}/{gffcompare,stringtie,salmon_quant}
 ################################################################################
 
 # Step 1: Transcript assembly with stringtie
-
 stringtie_jobid=()
 
 stringtie_jobid+=($(sbatch --parsable \
@@ -92,26 +91,20 @@ stringtie_jobid+=($(sbatch --parsable \
   ${scriptdir}/stringtie.sh
 ))
 
-info "Stringtie jobid: ${stringtie_jobid[@]}"
 
-echo -e "\n`date` Checking precision and sensitivity with gffcompare ..."
-echo -e "====================================================================================== \n"
-
-#2. GFFCOMPARE: Compares the newly created GTFs with the reference GTF
-
+# Step 2: Compare sample GTF with reference GTF using gffcompare
 gffcompare_jobid=()
 
 gffcompare_jobid+=($(sbatch --parsable \
-  --mem=${low_mem} \
-  --cpus-per-task=${low_cpu} \
+  --mem=10G} \
+  --cpus-per-task=2 \
   --time=24:00:00 \
   --array 1-${#samples[@]}%${simul_array_runs} \
   --job-name=${run}.gffcompare \
   --output=log/${run}/gffcompare/%A_%a \
-   --dependency=aftercorr:${stringtie_jobid} \
-  ${scriptdir}/dip_gffcompare.sh \
-  ${scriptdir}/dip_functions.sh \
-  ${CONFIG}
+  --dependency=aftercorr:${stringtie_jobid} \
+  --export=ALL \
+  ${scriptdir}/gffcompare.sh
 ))
 
 info "Gffcompare jobid: ${gffcompare_jobid[@]}"
