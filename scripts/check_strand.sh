@@ -28,7 +28,8 @@ fi
 check_strandedness -g ${reference_gtf} \
 -n 1000000 \
 -r1 ${r1_file} \
--r2 ${r2_file} >> "${outdir}/check_strandedness/${sample_id}.txt"
+-r2 ${r2_file} \
+-k "${kallisto_index}" >> "${outdir}/check_strandedness/${sample_id}.txt"
 
 # Record strandedness
 touch "${outdir}/check_strandedness/strandedness_all.txt" 
