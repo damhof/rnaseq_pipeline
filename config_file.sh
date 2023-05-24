@@ -11,6 +11,7 @@ export annot="102"
 export paired_end="true"
 export projectname="NB_tumoroids"
 export merged_gtf_basename="NB_tumoroids"
+export create_annotation="TRUE"
 
 # Transcript filtering parameters
 export min_occurrence=3

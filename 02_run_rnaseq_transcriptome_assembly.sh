@@ -134,37 +134,27 @@ filter_annotate_jobid+=($(sbatch --parsable \
 ))
 info "Filter and annotation jobid: ${filter_annotate_jobid[@]}"
 
-# 5. R: Creates a custom annotation file using the merged, filtered,
-#       annotated GTF for further RIBO-seq pipeline analysis
-
+# Step 5: Create custom annotation file for RiboseQC and ORFquant based on filtered custom GTF
 custom_annotation_jobid=()
-
 if [[ ${create_annotation} =~ "TRUE" ]]; then
-
   if [[ $(find ${wd}/ -name '*.Rannot' | wc -l) -eq 0 ]]; then
-
     custom_annotation_jobid+=($(sbatch --parsable \
-      --mem=${low_mem} \
-      --cpus-per-task=${low_cpu} \
+      --mem=10G \
+      --cpus-per-task=2 \
       --gres=tmpspace:50G \
       --time=24:00:00 \
       --job-name=${run}.custom_annotation \
       --output=log/${run}/%A_custom_annotation.out \
       --dependency=afterok:${filter_annotate_jobid} \
-      ${scriptdir}/dip_custom_annotation.sh \
-      ${CONFIG}
+      --export=ALL \
+      ${scriptdir}/custom_annotation.sh
     ))
-
     info "Custom annotation jobid: ${custom_annotation_jobid[@]}"
-
   else
   echo "Annotation file already present"
-
   fi
-
 else
   echo "Creation of annotation not specified"
-
 fi
 
 # 6. SALMON INDEX: Use the custom GTF file to generate a 
