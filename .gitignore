@@ -1,5 +1,10 @@
-data/processed/*
-data/raw/*
+# exclude following folders
+data/*
 log/*
 slurm*
 *.txt
+
+# exceptions
+!data/.gitkeep
+!log/.gitkeep
+
