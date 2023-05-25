@@ -1,7 +1,10 @@
 #!/bin/bash
 
-#SBATCH -t 4:00:00
-#SBATCH --job-name=rnaseq_transcript_detection
+# run_rnaseq_transcriptome_assembly.sh
+#
+# Short description of pipeline script
+#
+#
 
 set -uo pipefail
 
@@ -67,6 +70,10 @@ source $CONFIG
 
 # Load general functions
 source ${scriptdir}/general_functions.sh
+
+# Find samples
+echo "$(date '+%Y-%m-%d %H:%M:%S') Finding samples..."
+get_samples $project_data_folder $data_folder $paired_end
 
 # Create a unique prefix for the names for this run of the pipeline. 
 # This makes sure that runs can be identified
