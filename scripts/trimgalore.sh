@@ -25,7 +25,7 @@ cd "${outdir}"
 mkdir -p "trimgalore/${sample_id}/"
 
 # Check whether script needs to run
-if [[ -f "${outdir}/trimgalore/${sample_id}/${r1_filename}" ]]; then
+if [[ -f "${outdir}/trimgalore/${sample_id}/${r1_filename/_R1_/_R1_trimmed_}" ]]; then
   echo "`date` ${sample_id} file already present"
   exit 0
 fi
@@ -46,8 +46,8 @@ trim_galore "${r1_file}" "${r2_file}" \
   --output_dir "${outdir}/trimgalore/${sample_id}"
 
 # Change names of validated trimgalore output to basename
-r1_trimmed="${r1_filename/_R1_/R1_trimmed_}"
-r2_trimmed="${r2_filename/_R2_/R2_trimmed_}"
+r1_trimmed="${r1_filename/_R1_/_R1_trimmed_}"
+r2_trimmed="${r2_filename/_R2_/_R2_trimmed_}"
 
 mv "${outdir}/trimgalore/${sample_id}/${r1_filename%.*.*}_val_1.fq.gz" "${outdir}/trimgalore/${sample_id}/${r1_trimmed}"
 mv "${outdir}/trimgalore/${sample_id}/${r2_filename%.*.*}_val_2.fq.gz" "${outdir}/trimgalore/${sample_id}/${r2_trimmed}"
