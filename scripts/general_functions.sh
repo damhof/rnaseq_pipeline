@@ -23,7 +23,7 @@ function get_samples() {
     r1_files=()
     r2_files=()
     if [[ "${paired_end,,}" == "true" ]]; then
-      readarray -t r1_filenames_raw < <(find "${project_data_folder}" -maxdepth 1 -name "*_R1*" -printf '%f\n' | sort -u)
+      readarray -t r1_filenames_raw < <(find "${project_data_folder}/" -maxdepth 1 -name "*_R1*" -printf '%f\n' | sort -u)
       for r1_filename in "${r1_filenames_raw[@]}"; do
         # If r1_filename is a symlink, find original file
         if [[ -L "${project_data_folder}/${r1_filename}" ]]; then
@@ -41,7 +41,7 @@ function get_samples() {
         r2_files+=("${r2_file}")
       done
     else
-      readarray -t r1_filenames < <(find "${project_data_folder}" -maxdepth 1 -name "*_R1*" -printf '%f\n' | sort -u)
+      readarray -t r1_filenames < <(find "${project_data_folder}/" -maxdepth 1 -name "*_R1*" -printf '%f\n' | sort -u)
       for r1_filename in "${r1_filenames[@]}"; do
         if [[ -L "${project_data_folder}/${r1_filename}" ]]; then
             r1_file="$(readlink -f "${project_data_folder}/${r1_filename}")"
