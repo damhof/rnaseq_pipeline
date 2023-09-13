@@ -2,15 +2,10 @@
 
 set -uo pipefail
 
-# Load modules
-module load cutadapt/${cutadapt_version}
-module load fastqc/${fastqc_version}
-module load trimgalore/${trimgalore_version}
-
 # Load files
-mapfile -t r1_files < r1_files.txt
-mapfile -t r2_files < r2_files.txt
-mapfile -t sample_ids < sample_ids.txt
+mapfile -t r1_files < ${project_folder}/documentation/r1_files.txt
+mapfile -t r2_files < ${project_folder}/documentation/r2_files.txt
+mapfile -t sample_ids < ${project_folder}/documentation/sample_ids.txt
 
 r1_file="${r1_files[$((SLURM_ARRAY_TASK_ID-1))]}"
 r2_file="${r2_files[$((SLURM_ARRAY_TASK_ID-1))]}"
@@ -30,14 +25,16 @@ if [[ -f "${outdir}/trimgalore/${sample_id}/${r1_filename/_R1_/_R1_trimmed_}" ]]
   exit 0
 fi
 
-# Run trimgalore on both reads
+# Run cutadapt on both reads
 echo "`date` running trimgalore for ${sample_id}"
-cutadapt --version
-fastqc --version
+apptainer exec -B "/hpc:/hpc" --env "LC_ALL=C.UTF-8" ${container_dir}/trimgalore-0.6.6.sif cutadapt --version
+apptainer exec -B "/hpc:/hpc" --env "LC_ALL=C.UTF-8" ${container_dir}/trimgalore-0.6.6.sif fastqc --version
+apptainer exec -B "/hpc:/hpc" --env "LC_ALL=C.UTF-8" ${container_dir}/trimgalore-0.6.6.sif trim_galore --version
 
 cd "${outdir}/trimgalore/${sample_id}/"
 
-trim_galore "${r1_file}" "${r2_file}" \
+apptainer exec -B "/hpc:/hpc" --env LC_ALL=C.UTF-8 ${container_dir}/trimgalore-0.6.6.sif trim_galore \
+  "${r1_file}" "${r2_file}" \
   --cores 2 \
   --paired \
   --gzip \

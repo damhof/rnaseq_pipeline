@@ -2,11 +2,8 @@
 
 set -uo pipefail
 
-# Load necessary modules
-module load samtools/${samtools_version}
-
 # Get correct files
-mapfile -t sample_ids < sample_ids.txt
+mapfile -t sample_ids < ${project_folder}/documentation/sample_ids.txt
 sample_id="${sample_ids[$((SLURM_ARRAY_TASK_ID-1))]}"
 bam="${sample_id}.Aligned.out.bam"
 new_bam="${sample_id}.Aligned.sortedByCoord.out.bam"
@@ -25,7 +22,7 @@ if ! [[ -s "${outdir}/star/${sample_id}/${bam}" ]]; then
 fi
 
 # Sort BAM
-samtools sort \
+apptainer exec -B /hpc:/hpc,${TMPDIR}:${TMPDIR} ${container_dir}/samtools-1.12.sif samtools sort \
   -@ 8 \
   -l 9 \
   -o "${outdir}/star/${sample_id}/${new_bam}" \
@@ -33,12 +30,11 @@ samtools sort \
   "${outdir}/star/${sample_id}/${bam}"
 
 # Create mapping statistics with samtools
-samtools stats -@ 8 \
+apptainer exec -B /hpc:/hpc ${container_dir}/samtools-1.12.sif samtools stats -@ 8 \
   "${outdir}/star/${sample_id}/${new_bam}" > "${outdir}/star/${sample_id}/${sample_id}_stats.txt"
 
 # Index the bam with samtools
-samtools --version
-samtools index -@ 8 "${outdir}/star/${sample_id}/${new_bam}"
+apptainer exec -B /hpc:/hpc ${container_dir}/samtools-1.12.sif samtools index -@ 8 "${outdir}/star/${sample_id}/${new_bam}"
 
 # Remove original STAR bam
 if [[ -s "${outdir}/star/${sample_id}/${new_bam}" ]]; then

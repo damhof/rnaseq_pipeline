@@ -10,6 +10,8 @@
 #
 ###########################################################################
 
+
+
 # Load libraries ----------------------------------------------------------
 message("Loading required libraries ...")
 suppressPackageStartupMessages({
@@ -24,6 +26,10 @@ twobit_file <- args[1]
 merged_gtf <- args[2]  
 annot_dir <- args[3]  
 annot_name <- args[4]
+package_install_loc <- args[5]
+
+paths <- c(package_install_loc,.libPaths())
+.libPaths(paths)
 
 # Prepare annotation files ------------------------------------------------
 prepare_annotation_files(annotation_directory = annot_dir, 
