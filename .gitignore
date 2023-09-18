@@ -1,10 +1,18 @@
 # exclude following folders
 data/*
 log/*
+documentation/*
+analysis/*
+
+# exclude the following files
 slurm*
 *.txt
+*.xlsx
+
 
 # exceptions
 !data/.gitkeep
 !log/.gitkeep
+!analysis/*.Rmd
+!analysis/*.sh
 

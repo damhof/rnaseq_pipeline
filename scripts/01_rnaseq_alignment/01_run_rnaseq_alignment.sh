@@ -113,7 +113,7 @@ trim_jobid+=($(sbatch --parsable \
   --job-name=${run_id}.trimgalore \
   --output=${project_folder}/log/${run_id}/trimgalore/%A_%a.out \
   --export=ALL \
-  "${scriptdir}/trimgalore.sh"
+  "${scriptdir}/01_rnaseq_alignment/trimgalore.sh"
 ))
 if [[ ${#trim_jobid[@]} -eq 0 ]]; then
   fatal "TrimGalore job not submitted successfully, trim_jobid array is empty"
@@ -131,7 +131,7 @@ strand_jobid+=($(sbatch --parsable \
   --job-name=${run_id}.howarewestrandedhere \
   --output=${project_folder}/log/${run_id}/howarewestrandedhere/%A_%a.out \
   --export=ALL \
-  "${scriptdir}/check_strand.sh"
+  "${scriptdir}/01_rnaseq_alignment/check_strand.sh"
 ))
 info "Howarewestrandedhere jobid: ${strand_jobid[@]}"
 
@@ -146,7 +146,7 @@ star_jobid+=($(sbatch --parsable \
   --output=${project_folder}/log/${run_id}/star/%A_%a.out \
   --dependency=aftercorr:${trim_jobid} \
   --export=ALL \
-  "${scriptdir}/star_align.sh"
+  "${scriptdir}/01_rnaseq_alignment/star_align.sh"
 ))
 info "STAR alignment jobid: ${star_jobid[@]}"
 
@@ -162,6 +162,6 @@ samtools_jobid+=($(sbatch --parsable \
   --output=${project_folder}/log/${run_id}/samtools/%A_%a.out \
   --dependency=aftercorr:${star_jobid} \
   --export=ALL \
-  "${scriptdir}/samtools.sh"
+  "${scriptdir}/01_rnaseq_alignment/samtools.sh"
 ))
 info "Samtools jobid: ${samtools_jobid[@]}"

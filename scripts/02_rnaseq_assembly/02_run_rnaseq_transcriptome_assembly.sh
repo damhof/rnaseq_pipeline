@@ -94,7 +94,7 @@ stringtie_jobid+=($(sbatch --parsable \
   --job-name=${run_id}.stringtie \
   --output=${project_folder}/log/${run_id}/stringtie/%A_%a.out \
   --export=ALL\
-  ${scriptdir}/stringtie.sh
+  ${scriptdir}/02_rnaseq_assembly/stringtie.sh
 ))
 info "stringtie jobid: ${stringtie_jobid[@]}"
 
@@ -109,7 +109,7 @@ gffcompare_jobid+=($(sbatch --parsable \
   --output=${project_folder}/log/${run_id}/gffcompare/%A_%a \
   --dependency=aftercorr:${stringtie_jobid} \
   --export=ALL \
-  ${scriptdir}/gffcompare.sh
+  ${scriptdir}/02_rnaseq_assembly/gffcompare.sh
 ))
 info "Gffcompare jobid: ${gffcompare_jobid[@]}"
 
@@ -123,7 +123,7 @@ stringtie_merge_jobid+=($(sbatch --parsable \
   --output=${project_folder}/log/${run_id}/%A_stringtie_merge.out \
   --dependency=afterany:${stringtie_jobid} \
   --export=ALL \
-  ${scriptdir}/stringtie_merge.sh
+  ${scriptdir}/02_rnaseq_assembly/stringtie_merge.sh
 ))
 info "Stringtie merge jobid: ${stringtie_merge_jobid[@]}"
 
@@ -137,7 +137,7 @@ filter_annotate_jobid+=($(sbatch --parsable \
   --output=${project_folder}/log/${run_id}/%A_filter_annotate.out \
   --dependency=afterany:${stringtie_merge_jobid} \
   --export=ALL \
-  ${scriptdir}/filter_annotate.sh
+  ${scriptdir}/02_rnaseq_assembly/filter_annotate.sh
 ))
 info "Filter and annotation jobid: ${filter_annotate_jobid[@]}"
 
@@ -154,7 +154,7 @@ if [[ ${create_annotation} =~ "TRUE" ]]; then
       --output=${project_folder}/log/${run_id}/%A_custom_annotation.out \
       --dependency=afterok:${filter_annotate_jobid} \
       --export=ALL \
-      ${scriptdir}/custom_annotation.sh
+      ${scriptdir}/02_rnaseq_assembly/custom_annotation.sh
     ))
     info "Custom annotation jobid: ${custom_annotation_jobid[@]}"
   else
