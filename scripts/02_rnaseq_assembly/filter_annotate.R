@@ -142,8 +142,7 @@ calculate_tx_occurence <-
       gsub(".*\\|", "", tracking_genes$samples.ref_gene_id)
     
     # Grab colnames for sample matrix
-    sample_ids <- list.files(paste(wd, "data/raw", sep = "/"))
-    sample_ids <- unique(gsub("_.*$", "", sample_ids))
+    sample_ids <- readLines(paste(wd, "documentation/sample_ids.txt", sep = "/"))
     
     # Subset sample matrix and write to tracking file directory
     tracking_file <-
