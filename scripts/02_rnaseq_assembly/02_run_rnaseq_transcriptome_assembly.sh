@@ -116,7 +116,7 @@ info "Gffcompare jobid: ${gffcompare_jobid[@]}"
 # Step 3: Merge all sample GTF files into single non-redundant GTF file using reference GTF file as guide
 stringtie_merge_jobid=()
 stringtie_merge_jobid+=($(sbatch --parsable \
-  --mem=24G \
+  --mem=48G \
   --cpus-per-task=4 \
   --time=24:00:00 \
   --job-name=${run_id}.stringtie_merge \
