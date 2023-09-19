@@ -40,7 +40,7 @@ echo "`date` running GFFcompare for annotation"
 cd "${outdir}/gffcompare/${merged_gtf_basename}/"
 
 # Run GFFcompare to annotate novel assembly .GTF
-apptainer exec -B /hpc:/hpc ${container_dir}/gffcompare-0.12.6.sif gffcompare
+apptainer exec -B /hpc:/hpc ${container_dir}/gffcompare-0.12.6.sif gffcompare --version
 apptainer exec -B /hpc:/hpc ${container_dir}/gffcompare-0.12.6.sif gffcompare \
   -V \
   -r ${reference_gtf} \
