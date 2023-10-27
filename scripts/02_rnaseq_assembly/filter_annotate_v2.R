@@ -132,6 +132,13 @@ gtf_novel <-
     gtf_novel$transcript_id %in% transcripts_discard$transcript_id
   )), ]
 
+# Set unique transcript IDs for each TCONS ID (gffcompare finds different TCONSs within same annotated parent transcript isoforms, resulting in multiple different isoforms with same MSTRG.X.X ID if not fixed)
+setDT(gtf_novel)
+setorder(gtf_novel, combined_gene_id, transcript_id)
+gtf_novel[, counter := cumsum(!duplicated(transcript_id)), by = combined_gene_id]
+gtf_novel[, transcript_id_new := paste0(combined_gene_id, ".", counter)]
+gtf_novel[, counter := NULL]
+
 ## Annotate gene IDs and transcript IDs
 gtf_novel <- gtf_novel %>%
   group_by(transcript_id) %>%

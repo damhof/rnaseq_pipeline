@@ -22,6 +22,6 @@ apptainer exec -B "/hpc:/hpc" --env LC_ALL=C.UTF-8 ${container_dir}/r_rna_filter
   "${outdir}/gffcompare/${merged_gtf_basename}/${merged_gtf_basename}.tracking" \
   "${outdir}/gffcompare/${merged_gtf_basename}/${merged_gtf_basename}_combined.tracking" \
   "${min_occurrence}" \
-  "${outdir}/customannotation/${merged_gtf_basename}_novel_filtered_4_stringtie.gtf"
+  "${outdir}/customannotation/${merged_gtf_basename}_novel_filtered.gtf"
 
 echo "`date` Finished GTF filtering"
