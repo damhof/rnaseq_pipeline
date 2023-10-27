@@ -23,7 +23,7 @@ function get_samples() {
     r1_files=()
     r2_files=()
     if [[ "${paired_end,,}" == "true" ]]; then
-      readarray -t r1_filenames_raw < <(find "${project_data_folder}/" -maxdepth 3 -name "*_R1*" -printf '%f\n' | sort -u)
+      readarray -t r1_filenames_raw < <(find "${project_data_folder}/" -maxdepth 3 -regextype posix-extended -regex '.*_R1(_001)?\.fastq\.gz$' -printf '%f\n' | sort -u)
       for r1_filename in "${r1_filenames_raw[@]}"; do
         full_path="${project_data_folder}/${r1_filename}"
         # If r1_filename is a symlink, find original file
@@ -42,8 +42,9 @@ function get_samples() {
           continue
         fi
 
-        r2_file="$(echo "${r1_file}" | sed 's/_R1/_R2/')"
+        r2_file="$(echo "${r1_file}" | sed 's/_R1\(_001\)\?\.fastq\.gz/_R2\1.fastq.gz/')"
         if [[ ! -f "${r2_file}" ]]; then
+
           fatal "R2 file ${r2_file} not found for ${r1_file}"
         fi
         
@@ -80,7 +81,7 @@ function get_samples() {
   for r1_file in "${r1_files[@]}"; do
     sample=$(basename "${r1_file}")
     #sample_id=$(basename ${r1_file} | rev | cut -d '_' -f 2- | rev | sort | uniq)
-    sample_id=$(basename ${r1_file} | sed 's/_R1[^.]*.fastq.gz//g')
+    sample_id=$(basename ${r1_file} | sed 's/_R1\(_[0-9]*\)\?.fastq.gz$//')
     samples+=("${sample}")
     sample_ids+=("${sample_id}")
   done
