@@ -41,11 +41,12 @@ apptainer exec -B /hpc:/hpc ${container_dir}/stringtie-2.1.5.sif stringtie --ver
 apptainer exec -B /hpc:/hpc ${container_dir}/stringtie-2.1.5.sif stringtie ${bam} \
     -G ${reference_gtf} \
     --${strandtype} \
-    -M 0.45 \
+    -M 0.95 \
     -a 9 \
     -m 50 \
-    -f 0.05 \
+    -f 0.01 \
     -g 40 \
+    -c 10 \
     -j 2 \
     -s 99999 \
     -x ${chromosome_exclusion_list} \

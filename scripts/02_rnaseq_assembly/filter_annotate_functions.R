@@ -216,29 +216,35 @@ filter_i_class <- function(gtf_df, reference_granges) {
   #
   # Searches for same-strand overlap with known genes for i class
   # transcripts.
-  tx_i <-
-    gtf_df[which(gtf_df$type == "transcript" &
-                   gtf_df$class_code == "i")]$transcript_id
-  gtf_i <- gtf_df[which(gtf_df$transcript_id %in% tx_i)]
-  i_by_tx <- split(gtf_i,
-                   gtf_i$transcript_id)
+  tx_i <- subset(gtf_df, type == "transcript" & class_code == "i")$transcript_id
+    # gtf_df[which(gtf_df$type == "transcript" &
+    #                gtf_df$class_code == "i")]$transcript_id
+  gtf_i <- subset(gtf_df, transcript_id %in% tx_i)
+  # Convert the entire gtf_i data frame to a GRanges object once
+  gtf_i_granges <- makeGRangesFromDataFrame(gtf_i, keep.extra.columns = TRUE)
+
+  # Function to check overlaps
+  check_overlap <- function(tx_id) {
+    # Subset GRanges object for the current transcript_id
+    x <- gtf_i_granges[gtf_i_granges$transcript_id == tx_id]
   
-  i_no_pass <- unlist(lapply(i_by_tx, function(x) {
-    overlap <-
-      GenomicRanges::findOverlaps(
-        query = GenomicRanges::makeGRangesFromDataFrame(x,
-                                                        keep.extra.columns = T),
-        subject = reference_granges,
-        type = "any"
-      )
-    
+    # Find overlaps
+    overlap <- findOverlaps(query = x, subject = reference_granges, type = "any")
+  
+    # Check if there is any overlap
     if (length(overlap) > 0) {
-      return(unique(x$transcript_id))
+      return(tx_id)
     }
-    
-  }))
-  
-  return(i_no_pass)
+  }
+
+# Get unique transcript IDs
+unique_tx_ids <- unique(gtf_i$transcript_id)
+
+# Apply the function to each transcript_id and unlist results
+i_no_pass <- unlist(lapply(unique_tx_ids, check_overlap))
+
+# Return the results
+return(i_no_pass)
   
 }
 

@@ -14,13 +14,12 @@ SYNOPSIS
   run_rnaseq_transcriptome_assembly.sh [-c <config file>] [-h]
 DESCRIPTION
   1. Assemble transcriptomes for each sample with STRINGTIE, using BAM files as input
-  2. Run GFFCOMPARE to compare custom GTF to reference GTF 
-  3. Merge GTF files per sample group with STRINGTIE --merge
-  4. Annotate and filter merged GTF with GFFCOMPARE and custom R scripts
-  5. Create custom annotation with custom merged GTF for ribo-seq analysis
-  6. Generate Salmon index
-  7. Quantify reads with salmon quant
-  8. Run MultiQC on new data
+  2. Merge GTF files per sample group with gffcompare
+  3. Annotate, filter, and fix merged GTF with custom R scripts
+  4. Create custom annotation with custom merged GTF for ribo-seq analysis
+  5. Generate Salmon index
+  6. Quantify reads with salmon quant
+  7. Run MultiQC on new data
 OPTIONS
   -c, --config <file>    Configuration file to use
   -h, --help             Display this help message
@@ -98,36 +97,21 @@ stringtie_jobid+=($(sbatch --parsable \
 ))
 info "stringtie jobid: ${stringtie_jobid[@]}"
 
-# Step 2: Compare sample GTF with reference GTF using gffcompare
-gffcompare_jobid=()
-gffcompare_jobid+=($(sbatch --parsable \
-  --mem=10G \
-  --cpus-per-task=2 \
-  --time=24:00:00 \
-  --array 1-${#samples[@]}%${simul_array_runs} \
-  --job-name=${run_id}.gffcompare \
-  --output=${project_folder}/log/${run_id}/gffcompare/%A_%a \
-  --dependency=aftercorr:${stringtie_jobid} \
-  --export=ALL \
-  ${scriptdir}/02_rnaseq_assembly/gffcompare.sh
-))
-info "Gffcompare jobid: ${gffcompare_jobid[@]}"
-
-# Step 3: Merge all sample GTF files into single non-redundant GTF file using reference GTF file as guide
-stringtie_merge_jobid=()
-stringtie_merge_jobid+=($(sbatch --parsable \
+# Step 2: Merge all sample GTF files into single GTF file using gffcompare with reference GTF file as guide
+gffcompare_merge_jobid=()
+gffcompare_merge_jobid+=($(sbatch --parsable \
   --mem=48G \
   --cpus-per-task=4 \
   --time=24:00:00 \
-  --job-name=${run_id}.stringtie_merge \
-  --output=${project_folder}/log/${run_id}/%A_stringtie_merge.out \
+  --job-name=${run_id}.gffcompare_merge \
+  --output=${project_folder}/log/${run_id}/%A_gffcompare_merge.out \
   --dependency=afterany:${stringtie_jobid} \
   --export=ALL \
-  ${scriptdir}/02_rnaseq_assembly/stringtie_merge.sh
+  ${scriptdir}/02_rnaseq_assembly/gffcompare_merge.sh
 ))
-info "Stringtie merge jobid: ${stringtie_merge_jobid[@]}"
+info "Gffcompare merge jobid: ${gffcompare_merge_jobid[@]}"
 
-# Step 4: Annotate transcripts with gffcompare class codes and perform transcript filtering
+# Step 3: Fix and filter the merged gffcompare output file
 filter_annotate_jobid=()
 filter_annotate_jobid+=($(sbatch --parsable \
   --mem=24G \
@@ -135,13 +119,12 @@ filter_annotate_jobid+=($(sbatch --parsable \
   --time=24:00:00 \
   --job-name=${run_id}.filter_annotate \
   --output=${project_folder}/log/${run_id}/%A_filter_annotate.out \
-  --dependency=afterany:${stringtie_merge_jobid} \
   --export=ALL \
   ${scriptdir}/02_rnaseq_assembly/filter_annotate.sh
 ))
 info "Filter and annotation jobid: ${filter_annotate_jobid[@]}"
 
-# Step 5: Create custom annotation file for RiboseQC and ORFquant based on filtered custom GTF
+# Step 4: Create custom annotation file for RiboseQC and ORFquant based on filtered custom GTF
 custom_annotation_jobid=()
 if [[ ${create_annotation} =~ "TRUE" ]]; then
   if [[ $(find ${wd}/ -name '*.Rannot' | wc -l) -eq 0 ]]; then
@@ -152,7 +135,6 @@ if [[ ${create_annotation} =~ "TRUE" ]]; then
       --time=24:00:00 \
       --job-name=${run_id}.custom_annotation \
       --output=${project_folder}/log/${run_id}/%A_custom_annotation.out \
-      --dependency=afterok:${filter_annotate_jobid} \
       --export=ALL \
       ${scriptdir}/02_rnaseq_assembly/custom_annotation.sh
     ))
